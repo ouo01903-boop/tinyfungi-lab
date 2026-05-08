@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>tinyfungi lab</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@200;300;400&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+:root{
+  --bg:#f2f2f0;
+  --surface:#ffffff;
+  --ink:#0c0c0a;
+  --mid:#7a7a72;
+  --light:#d8d8d2;
+  --line:rgba(12,12,10,.08);
+  --line2:rgba(12,12,10,.15);
+  --serif:'Noto Serif TC',serif;
+  --mono:'Space Mono',monospace;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--serif);
+  font-weight:300;
+  overflow-x:hidden;
+}
+
+/* dot grid */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:radial-gradient(var(--line) 1px,transparent 1px);
+  background-size:44px 44px;
+}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .8s cubic-bezier(.22,.8,.36,1),transform .8s cubic-bezier(.22,.8,.36,1);}
+.rv.on{opacity:1;transform:none;}
+.rv1{transition-delay:.1s;}.rv2{transition-delay:.2s;}.rv3{transition-delay:.3s;}
+
+/* ── TICKER ── */
+.ticker{
+  height:30px;background:var(--ink);
+  display:flex;align-items:center;overflow:hidden;position:relative;z-index:200;
+}
+.ticker-track{display:flex;white-space:nowrap;animation:tick 55s linear infinite;}
+.ticker-track:hover{animation-play-state:paused;}
+.ticker-item{font-family:var(--mono);font-size:8px;letter-spacing:.18em;color:rgba(255,255,255,.4);padding:0 2.5rem;border-right:1px solid rgba(255,255,255,.07);}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:30px;left:0;right:0;z-index:190;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 3.5rem;height:52px;
+  background:rgba(242,242,240,.88);
+  backdrop-filter:blur(18px) saturate(1.2);
+  border-bottom:1px solid var(--line2);
+}
+.nav-logo{font-family:var(--mono);font-size:13px;letter-spacing:.22em;color:var(--ink);}
+.nav-r{display:flex;gap:2rem;list-style:none;}
+.nav-r a{font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--mid);text-decoration:none;cursor:pointer;transition:color .2s;}
+.nav-r a:hover{color:var(--ink);}
+
+/* side label */
+.side-label{
+  position:fixed;left:18px;bottom:60px;z-index:50;
+  writing-mode:vertical-rl;
+  font-family:var(--mono);font-size:8px;letter-spacing:.4em;
+  color:var(--mid);opacity:.4;pointer-events:none;
+}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  display:grid;grid-template-columns:1fr 1.25fr;
+  align-items:center;
+  padding:140px 3.5rem 80px;
+  gap:6rem;
+  position:relative;z-index:1;
+}
+.hero-eyebrow{
+  font-family:var(--mono);font-size:8px;letter-spacing:.3em;
+  color:var(--mid);margin-bottom:1.8rem;
+}
+.hero-title{
+  font-family:var(--serif);
+  font-size:clamp(2.8rem,5.5vw,5.5rem);
+  font-weight:200;line-height:.98;
+  letter-spacing:-.02em;margin-bottom:2rem;
+}
+.hero-title em{font-style:italic;color:var(--mid);}
+.hero-body{font-size:.9rem;line-height:1.95;color:var(--mid);max-width:360px;margin-bottom:2rem;}
+.hero-data{
+  display:flex;gap:2rem;
+  font-family:var(--mono);font-size:8px;letter-spacing:.15em;color:var(--light);
+  border-top:1px solid var(--line2);padding-top:1.4rem;
+}
+
+/* hero image */
+.hero-img-wrap{position:relative;}
+.hero-img-frame{
+  border:1px solid var(--line2);
+  padding:10px;background:var(--surface);
+  position:relative;
+}
+.hero-img-frame img{width:100%;height:100%;object-fit:cover;display:block;}
+.hero-img-frame::before,.hero-img-frame::after{
+  content:'';position:absolute;width:12px;height:12px;
+  border-color:var(--ink);border-style:solid;opacity:.2;
+}
+.hero-img-frame::before{top:4px;left:4px;border-width:1px 0 0 1px;}
+.hero-img-frame::after{bottom:4px;right:4px;border-width:0 1px 1px 0;}
+.img-tag{
+  position:absolute;top:-10px;right:-10px;
+  background:var(--ink);color:rgba(255,255,255,.7);
+  font-family:var(--mono);font-size:8px;letter-spacing:.1em;
+  padding:4px 10px;z-index:2;
+}
+
+/* ── DIVIDER ── */
+.divider{
+  position:relative;z-index:1;
+  border-top:1px solid var(--line2);
+  display:flex;align-items:center;
+  padding:.7rem 3.5rem;
+  background:var(--bg);
+}
+.div-label{font-family:var(--mono);font-size:8px;letter-spacing:.25em;color:var(--light);}
+.div-line{flex:1;height:1px;background:var(--line);margin:0 1.5rem;}
+
+/* ── ABOUT ── */
+.about{
+  display:grid;grid-template-columns:.45fr 1fr;
+  position:relative;z-index:1;
+  border-top:1px solid var(--line2);border-bottom:1px solid var(--line2);
+  background:var(--surface);
+}
+.about-meta{
+  padding:4rem 3rem;
+  border-right:1px solid var(--line2);
+  display:flex;flex-direction:column;gap:0;
+}
+.about-meta-row{
+  padding:1rem 0;border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--mid);
+  display:flex;justify-content:space-between;
+}
+.about-meta-row:last-child{border-bottom:none;}
+.about-body{padding:4rem 3.5rem;}
+.about-label{font-family:var(--mono);font-size:8px;letter-spacing:.28em;color:var(--mid);margin-bottom:1.5rem;}
+.about-title{font-family:var(--serif);font-size:clamp(1.5rem,2.5vw,2.5rem);font-weight:200;line-height:1.15;margin-bottom:1.5rem;}
+.about-text{font-size:.9rem;line-height:1.95;color:var(--mid);margin-bottom:1.5rem;}
+.about-quote{
+  border-left:2px solid var(--ink);padding-left:1.4rem;
+  font-style:italic;font-size:.9rem;line-height:1.8;color:var(--ink);
+}
+
+/* ── GALLERY ── */
+.gallery-sec{
+  padding:6rem 3.5rem;
+  position:relative;z-index:1;
+}
+.gallery-head{
+  display:flex;justify-content:space-between;align-items:baseline;
+  border-top:1px solid var(--ink);border-bottom:1px solid var(--line2);
+  padding:.8rem 0;margin-bottom:4rem;
+}
+.gallery-head-title{font-family:var(--mono);font-size:10px;letter-spacing:.2em;}
+.gallery-head-note{font-family:var(--mono);font-size:8px;letter-spacing:.15em;color:var(--mid);}
+.gallery-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:5rem;align-items:start;
+}
+.spec-card{position:relative;}
+.spec-card.offset{margin-top:8rem;}
+.spec-frame{
+  border:1px solid var(--line2);
+  padding:8px;background:var(--surface);
+  position:relative;overflow:hidden;
+}
+.spec-frame::before{
+  content:'';position:absolute;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(12,12,10,.12),transparent);
+  top:-100%;transition:top .6s cubic-bezier(.22,.8,.36,1);z-index:2;
+}
+.spec-card:hover .spec-frame::before{top:110%;}
+.spec-frame img{width:100%;display:block;object-fit:cover;transition:transform .5s cubic-bezier(.22,.8,.36,1);}
+.spec-card:hover .spec-frame img{transform:scale(1.02);}
+.spec-info{
+  margin-top:1.2rem;
+  display:flex;justify-content:space-between;align-items:flex-start;
+}
+.spec-title{font-family:var(--serif);font-size:1.05rem;font-weight:300;}
+.spec-meta{
+  font-family:var(--mono);font-size:8px;color:var(--mid);
+  text-align:right;line-height:1.6;letter-spacing:.06em;
+}
+.spec-num{
+  position:absolute;top:16px;left:16px;
+  font-family:var(--mono);font-size:8px;letter-spacing:.12em;
+  color:var(--mid);background:rgba(242,242,240,.8);
+  padding:2px 8px;z-index:3;
+}
+
+/* ── ORIGIN ACCORDION ── */
+.origin-sec{
+  padding:0 3.5rem 6rem;
+  position:relative;z-index:1;
+}
+.origin-banner{
+  display:grid;grid-template-columns:1fr 120px;gap:2rem;align-items:center;
+  padding:2.2rem 2.5rem;border:1px solid var(--line2);
+  cursor:pointer;transition:background .3s;
+  background:var(--surface);position:relative;
+}
+.origin-banner::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--ink);transform:scaleY(0);transform-origin:bottom;
+  transition:transform .3s cubic-bezier(.22,.8,.36,1);
+}
+.origin-banner:hover::before{transform:scaleY(1);}
+.origin-banner:hover{background:var(--bg);}
+.ob-label{font-family:var(--mono);font-size:8px;letter-spacing:.25em;color:var(--mid);margin-bottom:.6rem;}
+.ob-title{font-family:var(--serif);font-size:clamp(1.2rem,2vw,1.7rem);font-weight:300;line-height:1.15;margin-bottom:.6rem;}
+.ob-desc{font-size:.875rem;line-height:1.85;color:var(--mid);}
+.ob-right{text-align:center;display:flex;flex-direction:column;align-items:center;gap:.4rem;}
+.ob-toggle-label{font-family:var(--mono);font-size:7px;letter-spacing:.15em;color:var(--mid);white-space:nowrap;}
+.ob-arrow{font-size:1.4rem;color:var(--mid);transition:transform .4s cubic-bezier(.22,.8,.36,1),color .25s;}
+.origin-banner:hover .ob-arrow{color:var(--ink);}
+.origin-banner.open .ob-arrow{transform:rotate(180deg);}
+.origin-accordion{max-height:0;overflow:hidden;opacity:0;transition:max-height .7s cubic-bezier(.22,.8,.36,1),opacity .5s;}
+.origin-accordion.open{max-height:1800px;opacity:1;}
+.origin-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line2);border:1px solid var(--line2);border-top:none;}
+.origin-item{background:var(--surface);padding:2.5rem;}
+.o-num{font-family:var(--mono);font-size:8px;letter-spacing:.22em;color:var(--mid);margin-bottom:.8rem;}
+.o-q{font-family:var(--serif);font-size:1.1rem;font-weight:300;line-height:1.3;margin-bottom:.8rem;color:var(--ink);}
+.o-a{font-size:.875rem;line-height:1.95;color:var(--mid);}
+.o-a em{color:var(--ink);font-style:normal;font-weight:400;}
+.origin-collapse{
+  display:flex;align-items:center;justify-content:center;gap:.8rem;
+  padding:1rem;border:1px solid var(--line2);border-top:none;
+  font-family:var(--mono);font-size:8px;letter-spacing:.2em;color:var(--mid);
+  cursor:pointer;transition:all .25s;background:var(--bg);
+}
+.origin-collapse:hover{color:var(--ink);background:var(--light);}
+
+/* ── CONNECT ── */
+.connect-sec{
+  padding:6rem 3.5rem;
+  text-align:center;
+  border-top:1px dashed var(--line2);
+  position:relative;z-index:1;
+}
+.connect-label{font-family:var(--mono);font-size:8px;letter-spacing:.3em;color:var(--mid);margin-bottom:1rem;}
+.connect-title{font-family:var(--serif);font-size:clamp(1.8rem,3vw,3.2rem);font-weight:200;line-height:1.1;margin-bottom:3rem;}
+.connect-btns{display:flex;justify-content:center;gap:1.2rem;flex-wrap:wrap;}
+.cbtn{
+  display:inline-flex;align-items:center;gap:.8rem;
+  padding:14px 36px;
+  border:1px solid var(--ink);
+  text-decoration:none;color:var(--ink);
+  font-family:var(--mono);font-size:9px;letter-spacing:.2em;
+  position:relative;overflow:hidden;transition:color .3s;
+}
+.cbtn::before{
+  content:'';position:absolute;top:0;left:50%;right:50%;bottom:0;
+  background:var(--ink);transition:left .32s cubic-bezier(.4,0,.2,1),right .32s cubic-bezier(.4,0,.2,1);z-index:0;
+}
+.cbtn:hover::before{left:0;right:0;}
+.cbtn:hover{color:var(--bg);}
+.cbtn span{position:relative;z-index:1;}
+.cbtn-icon{position:relative;z-index:1;width:16px;height:16px;}
+
+/* ── FOOTER ── */
+footer{
+  padding:2rem 3.5rem;text-align:center;
+  border-top:1px solid var(--line2);
+  font-family:var(--mono);font-size:8px;letter-spacing:.18em;
+  color:var(--light);position:relative;z-index:1;
+  background:var(--ink);color:rgba(255,255,255,.2);
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  nav{padding:0 1.5rem;}
+  .hero{grid-template-columns:1fr;padding:130px 1.5rem 60px;gap:3rem;}
+  .about{grid-template-columns:1fr;}
+  .about-meta{border-right:none;border-bottom:1px solid var(--line2);padding:2rem 1.5rem;}
+  .about-body{padding:2rem 1.5rem;}
+  .gallery-sec{padding:4rem 1.5rem;}
+  .gallery-grid{grid-template-columns:1fr;gap:3rem;}
+  .spec-card.offset{margin-top:0;}
+  .origin-sec{padding:0 1.5rem 4rem;}
+  .origin-grid{grid-template-columns:1fr;}
+  .origin-banner{grid-template-columns:1fr;padding:1.8rem;}
+  .ob-right{display:none;}
+  .connect-sec{padding:4rem 1.5rem;}
+  .divider{padding:.7rem 1.5rem;}
+  footer{padding:1.5rem;}
+}
+@media(max-width:600px){
+  .hero-title{font-size:2.4rem;}
+  .hero-data{flex-wrap:wrap;gap:1rem;}
+}
+
+/* 只有在電腦端 (hover: hover) 才隱藏原生指標 */
+@media (hover: hover) {
+  body, html, a, button, .origin-banner {
+    cursor: none !important;
+  }
+}
+
+#custom-cursor {
+  width: 30px;
+  height: 30px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  mix-blend-mode: difference;
+  opacity: 0; /* 預設隱藏，動了才出現 */
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+}
+
+#custom-cursor::before, #custom-cursor::after {
+  content: '';
+  position: absolute;
+  background: #fff;
+}
+
+/* 橫線 */
+#custom-cursor::before { width: 100%; height: 1px; }
+/* 豎線 */
+#custom-cursor::after { width: 1px; height: 100%; }
+
+/* 碰到連結時的反應：旋轉變 X */
+#custom-cursor.active {
+  transform: scale(0.6) rotate(45deg);
+}
+.back-to-top {
+  position: fixed; right: 2rem; bottom: 2rem;
+  width: 40px; height: 40px; border: 1px solid var(--line2);
+  background: var(--surface); color: var(--mid);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 10px; cursor: pointer;
+  z-index: 100; opacity: 0; visibility: hidden;
+  transition: all 0.3s;
+}
+.back-to-top.show { opacity: 1; visibility: visible; }
+.back-to-top:hover { border-color: var(--ink); color: var(--ink); }
+
+#preloader {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 1000;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.loader-text {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.3em;
+  color: var(--mid); margin-top: 20px;
+}
+.loader-bar {
+  width: 120px; height: 1px; background: var(--line2); position: relative; overflow: hidden;
+}
+.loader-bar::after {
+  content: ''; position: absolute; left: -100%; width: 100%; height: 100%;
+  background: var(--ink); animation: load 1.5s infinite;
+}
+@keyframes load { 0% { left: -100%; } 100% { left: 100%; } }
+
+
+
+</style>
+
+
+<!-- 1. 爬蟲基本行為指令 -->
+<meta name="robots" content="index, follow"> <!-- 告訴爬蟲：請索引我，並追蹤我的連結 -->
+<meta name="googlebot" content="index, follow"> <!-- 專門給 Google 看的指令 -->
+
+<!-- 2. 語意化標籤 (剛剛給你的 SEO 組合) -->
+<title>tinyfungilab | 真菌實驗室</title>
+<meta name="description" content="tinyfungilab 是一個專注於微小美學的創作空間。將透明感與真菌做結合，轉化為可以配戴的手工飾品與紀錄情緒及走過的路徑。">
+
+<!-- 3. 標準網址 (防止重複內容影響排名) -->
+<link rel="canonical" href="https://tinyfungilab.com/">
+
+<!-- 4. 結構化資料 (JSON-LD) - 確保這段包在 <script> 裡 -->
+<!-- 給 Google 看的結構化資料 -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ArtGallery",
+  "name": "tinyfungi lab",
+  "description": "專注於真菌美學、透明樹脂飾品與手工銀飾創作的實驗性空間。",
+  "url": "https://tinyfungilab.com/"
+}
+</script>
+</head>
+<div id="custom-cursor"></div>
+<body>
+<div id="preloader">
+  <div class="loader-bar"></div>
+  <div class="loader-text">SCANNING SPECIMENS...</div>
+</div>
+<div class="side-label">SPECIMEN COLLECTION © 2026</div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="ticker-item">TINYFUNGI LAB · FIELD OBSERVATION · EST.2026</span>
+    <span class="ticker-item">新品上架中 · TF-NK 培養基鏈</span>
+    <span class="ticker-item">甦銀 ShuiNlab · 手工銀飾訂製開放中</span>
+    <span class="ticker-item">STATUS: ARCHIVING · PHASE 01</span>
+    <span class="ticker-item">渺小，但也非常重要</span>
+    <span class="ticker-item">TINYFUNGI LAB · FIELD OBSERVATION · EST.2026</span>
+    <span class="ticker-item">新品上架中 · TF-NK 培養基鏈</span>
+    <span class="ticker-item">甦銀 ShuiNlab · 手工銀飾訂製開放中</span>
+    <span class="ticker-item">STATUS: ARCHIVING · PHASE 01</span>
+    <span class="ticker-item">渺小，但也非常重要</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">tinyfungi lab</div>
+  <ul class="nav-r">
+    <li><a onclick="gs('#about')">關於</a></li>
+    <li><a onclick="gs('#gallery')">作品</a></li>
+    <li><a onclick="gs('#origin')">起源</a></li>
+    <li><a onclick="gs('#connect')">連結</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div>
+    <div class="hero-eyebrow rv">[ PROJECT_01 ] · SPECIMEN LOG</div>
+    <h1 class="hero-title rv rv1">
+      捕捉微觀<br>
+      <em>森林的呼吸</em>
+    </h1>
+    <p class="hero-body rv rv2">在那不到一公分的世界裡，隱藏著生命最原始的律動。
+        真菌負責分解，雖渺小但非常重要。</p>
+    <div class="hero-data rv rv3">
+      <div>DATE: 2026.03.22</div>
+      <div>LENS: CANON 50mm 1:1.4</div>
+      <div>PHASE: 01</div>
+    </div>
+  </div>
+  <div class="hero-img-wrap rv rv1">
+    <div class="hero-img-frame">
+      <img src="品牌圖片/DSC02529.JPEG" alt="tinyfungi lab 手工樹脂滴膠透明感項鍊，展現真菌美學與清透日系質感。"
+        onerror="this.parentElement.style.cssText='aspect-ratio:3/4;background:var(--bg);display:flex;align-items:center;justify-content:center;';this.outerHTML='<div style=\'font-family:var(--mono);font-size:8px;letter-spacing:.2em;color:var(--light);text-align:center\'>DSC02529<br>IMAGE</div>'">
+    </div>
+    <div class="img-tag">TF-NK-00</div>
+  </div>
+</section>
+
+<div class="divider rv">
+  <span class="div-label">ABOUT</span>
+  <div class="div-line"></div>
+  <span class="div-label">LAB STORY</span>
+</div>
+
+<!-- ABOUT -->
+<div class="about" id="about">
+  <div class="about-meta rv">
+    <div class="about-meta-row"><span>OBJECTIVE</span><span>OBSERVE</span></div>
+    <div class="about-meta-row"><span>FIELD</span><span>MICROSCOPIC</span></div>
+    <div class="about-meta-row"><span>METHOD</span><span>PHOTOGRAPHY</span></div>
+    <div class="about-meta-row"><span>BRANDS</span><span>01</span></div>
+    <div class="about-meta-row"><span>STATUS</span><span>ARCHIVING</span></div>
+  </div>
+  <div class="about-body">
+    <div class="about-label rv">關於實驗室 / LAB STORY</div>
+    <h2 class="about-title rv rv1">從一顆孢子<br>開始的實驗</h2>
+    <p class="about-text rv rv2">tinyfungi lab 是一個專注於微小美學的創作空間。從真菌的概念出發，將那份轉瞬即逝的透明感，轉化為可以配戴的飾品與記錄。</p>
+    <blockquote class="about-quote rv rv3">「在微距鏡頭下，每一個作品都是一個獨立的宇宙。」</blockquote>
+  </div>
+</div>
+
+<div class="divider rv">
+  <span class="div-label">SPECIMEN</span>
+  <div class="div-line"></div>
+  <span class="div-label">WORKS</span>
+</div>
+
+<!-- GALLERY -->
+<section class="gallery-sec" id="gallery">
+  <div class="gallery-head rv">
+    <div class="gallery-head-title">WORKS · 作品</div>
+    <div class="gallery-head-note">COLLECTION 2026</div>
+  </div>
+  <div class="gallery-grid">
+    <div class="spec-card rv">
+      <div class="spec-frame">
+        <span class="spec-num">01</span>
+        <img src="品牌圖片/DSC02545.JPEG" alt="TF-NK00 全透明樹脂材質與手工自製 OT 扣"
+          onerror="this.style.cssText='aspect-ratio:3/4;background:var(--bg);display:block;';this.outerHTML='<div style=\'aspect-ratio:3/4;background:var(--bg);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:8px;color:var(--light);letter-spacing:.15em\'>DSC02545</div>'">
+      </div>
+      <div class="spec-info">
+        <div class="spec-title">TF-NK00 </div>
+        <div class="spec-meta">  NATURAL LIGHT <br> ꕁ自製OT扣ꕁ <br> 全都由透明樹脂手工製成<br>無五金、相對耐水游泳潛水可戴 ｡·* ✧˚ </div> 
+      </div>
+    </div>
+    <div class="spec-card offset rv rv2">
+      <div class="spec-frame">
+        <span class="spec-num">02</span>
+        <img src="品牌圖片/DSC02549.JPEG" alt="tinyfungi lab 微觀森林系列：手工樹脂真菌項鍊"
+          onerror="this.style.cssText='aspect-ratio:3/4;background:var(--bg);display:block;';this.outerHTML='<div style=\'aspect-ratio:3/4;background:var(--bg);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:8px;color:var(--light);letter-spacing:.15em\'>DSC02549</div>'">
+      </div>
+      <div class="spec-info">
+        <div class="spec-title">TF-NK00 </div>
+        <div class="spec-meta">NATURAL LIGHT<br>ꕁ自製OT扣ꕁ <br> 全都由透明樹脂手工製成<br>無五金、相對耐水游泳潛水可戴 ｡·* ✧˚ </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider rv">
+  <span class="div-label">ORIGIN</span>
+  <div class="div-line"></div>
+  <span class="div-label">FIELD NOTES</span>
+</div>
+
+<!-- ORIGIN -->
+<section class="origin-sec" id="origin">
+  <div class="origin-banner rv" id="origin-banner" onclick="toggleOrigin()">
+    <div>
+      <div class="ob-label">FIELD NOTES · 2026</div>
+      <div class="ob-title">從真菌開始的渺小宣言</div>
+      <p class="ob-desc">起初，總是不知道要做甚麼，但有關真菌的作品卻占多數，</br>而真正的原因，在仔細研究之後才知道。</p>
+    </div>
+    <div class="ob-right">
+      <div class="ob-toggle-label" id="ob-lbl">展開完整紀錄</div>
+      <div class="ob-arrow" id="ob-arrow">↓</div>
+    </div>
+  </div>
+  <div class="origin-accordion" id="origin-accordion">
+    <div class="origin-grid">
+      <div class="origin-item rv"><div class="o-num">OBS.001</div><div class="o-q">為什麼是真菌？</div><div class="o-a">一開始只是因為放空時做作品手中不知不覺就有<em>一朵菇</em>。<br>後來仔細尋找原因，才發現它和品牌的概念那麼接近。<br><br>而<em>菌絲</em>是我品牌中很喜歡的概念之一，菌絲生長在地下，<br>就像人的內在和想法，是不可見的。<br>但也因這樣，才顯得連結如此珍貴，菌絲像層<em>探索過的路</em>，<br>也像能夠選擇與什麼樣的人<em>連結</em>的存在。<br><br>人的一生很渺小。大多數人都像浮游生物——存在著，但卻不顯眼。真菌也是。但它們負責分解整個生態系統的廢棄物，沒有它們，森林會停止運作。<em>雖然渺小，但卻非常重要。</em></div></div>
+      <div class="origin-item rv rv1"><div class="o-num">OBS.002</div><div class="o-q">為什麼叫「實驗室」？</div><div class="o-a">因為作品不會一直是同一種風格。每個週期都是實驗。<br><br>有時候是<em>真菌</em>，有時候是<em>清透的水</em>，有時候是日常中觸發的靈感。而喜歡的風格也會跟著時間和當下的想法改變，也像水一樣流動。<br>所以叫做<em>「實驗室」</em>——有時結果並不是一切，或許答案在過程中。</div></div>
+      <div class="origin-item rv rv2"><div class="o-num">OBS.003</div><div class="o-q">甦銀 ShuiN 是什麼？</div><div class="o-a">第二個品牌。主要做手工銀飾，溫潤的純銀更能夠承載情緒的重量。<br><br>如果 tinyfungi 是生活中的<em>小碎片</em>，那甦銀探討的是更核心的部分——某件事件後改變的想法，某種用語言無法表達的情緒，只能用一個形狀來安放它。</div></div>
+      <div class="origin-item rv rv3"><div class="o-num">OBS.004</div><div class="o-q">這個品牌為誰而存在？</div><div class="o-a">說實話，一開始是為自己。<br><br>在充滿比較與追求的社會裡，試圖記錄如何長出自己。<br>我們常常被時間淹沒，時間單位被拆為每分每秒，<br>日常中發生的小事，成長的小改變，常常被理所當然地遺忘。<em>但我們其實做得很好，也走了很遠。</em><br><br>不論這個品牌最終能走到哪裡，<em>我都想真實的紀錄這一切。</em></div></div>
+    </div>
+    <div class="origin-collapse" onclick="toggleOrigin()">收起紀錄 ↑</div>
+  </div>
+</section>
+
+<!-- CONNECT -->
+<section class="connect-sec" id="connect">
+  <div class="connect-label rv">— 點集下方連結 —</div>
+  <h3 class="connect-title rv rv1">參與更多實驗紀錄</h3>
+  <div class="connect-btns rv rv2">
+    <a class="cbtn" href="https://www.instagram.com/tinyfungi.lab/" target="_blank">
+      <svg class="cbtn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+      <span>INSTAGRAM</span>
+    </a>
+    <a class="cbtn" href="https://www.threads.com/@tinyfungi.lab" target="_blank">
+      <svg class="cbtn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 12c0-2.21 1.79-4 4-4 1.5 0 2.8.82 3.5 2M12 16c-1.5 0-2.8-.82-3.5-2"/><line x1="16" y1="9" x2="16" y2="15"/></svg>
+      <span>THREADS</span>
+    </a>
+    
+  </div>
+</section>
+
+<!-- ── 新頁尾開始 (包含專屬樣式) ── -->
+<style>
+  .footer-wrap {
+    background: var(--ink);
+    color: rgba(255,255,255,0.4);
+    padding: 6rem 3.5rem 3rem;
+    border-top: 1px solid var(--line2);
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 4rem;
+    text-align: left;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-brand h3 {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: #fff;
+    letter-spacing: 0.2em;
+    margin-bottom: 1.5rem;
+  }
+
+  .footer-brand p {
+    font-size: 0.85rem;
+    line-height: 1.8;
+    max-width: 320px;
+  }
+
+  .footer-label {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.2);
+    margin-bottom: 1.5rem;
+    display: block;
+  }
+
+  .footer-list { list-style: none; }
+  .footer-list li { margin-bottom: 0.8rem; }
+  .footer-list a {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.5);
+    text-decoration: none;
+    transition: color 0.3s;
+    cursor: none; /* 確保十字游標生效 */
+  }
+  .footer-list a:hover { color: #fff; }
+
+  .footer-bottom {
+    background: var(--ink);
+    padding: 2rem 3.5rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.2);
+    position: relative;
+    z-index: 1;
+  }
+
+  @media(max-width:900px){
+    .footer-wrap { 
+      grid-template-columns: 1fr; 
+      padding: 4rem 1.5rem;
+      gap: 3rem;
+    }
+    .footer-bottom { 
+      padding: 2rem 1.5rem; 
+      flex-direction: column; 
+      gap: 1rem; 
+      text-align: center;
+    }
+  }
+  <style>
+  /* ── 頁尾核心樣式 ── */
+  .footer-wrap {
+    background: var(--ink);
+    color: rgba(255,255,255,0.4);
+    padding: 6rem 3.5rem 3rem;
+    border-top: 1px solid var(--line2);
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr;
+    gap: 4rem;
+    text-align: left;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-brand h3 {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: #fff;
+    letter-spacing: 0.2em;
+    margin-bottom: 1.5rem;
+  }
+
+  .footer-brand p {
+    font-size: 0.85rem;
+    line-height: 1.8;
+    max-width: 320px;
+    transition: opacity 0.3s;
+  }
+
+  .footer-label {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    color: rgba(255,255,255,0.2);
+    margin-bottom: 1.2rem;
+    display: block;
+  }
+
+  .footer-list { list-style: none; }
+  .footer-list li { margin-bottom: 0.8rem; }
+  .footer-list a {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.5);
+    text-decoration: none;
+    transition: color 0.3s;
+    cursor: none;
+  }
+  .footer-list a:hover { color: #fff; }
+
+  .footer-bottom {
+    background: var(--ink);
+    padding: 2rem 3.5rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.2);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── 響應式優化：直式預覽 ── */
+  @media(max-width: 900px) {
+    .footer-wrap {
+      padding: 4rem 1.5rem 2.5rem;
+      grid-template-columns: 1fr 1fr; /* 讓 Explore 和 Contact 並排 */
+      gap: 2.5rem 1rem;
+    }
+    .footer-brand {
+      grid-column: span 2; /* 品牌佔滿整行 */
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding-bottom: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    .footer-brand p {
+      font-size: 0.8rem;
+      max-width: 100%;
+    }
+    .footer-bottom {
+      padding: 2rem 1.5rem;
+      flex-direction: column;
+      gap: 1.2rem;
+      text-align: center;
+    }
+  }
+
+  /* 極小螢幕 (手機) 進一步精簡 */
+  @media(max-width: 500px) {
+    .footer-brand p {
+      display: none; /* 隱藏長段落，保持極簡 */
+    }
+    .footer-brand h3 {
+      margin-bottom: 0;
+    }
+    .footer-wrap {
+      padding: 3rem 1.5rem;
+      gap: 2rem 0.5rem;
+    }
+    .footer-list a {
+      font-size: 0.75rem; /* 字體微縮更有設計感 */
+    }
+  }
+</style>
+
+
+<footer>
+  <div class="footer-wrap">
+    <!-- 品牌區 -->
+    <div class="footer-brand">
+      <h3>TINYFUNGI LAB</h3>
+      <p>在那不到一公分的世界裡，<br>隱藏著生命最原始的律動。<br>真菌負責分解，雖渺小但非常重要。</p>
+    </div>
+    
+    <!-- 導覽區 -->
+    <div>
+      <span class="footer-label">EXPLORE / 導覽</span>
+      <ul class="footer-list">
+        <li><a onclick="gs('#about')">關於實驗室</a></li>
+        <li><a onclick="gs('#gallery')">作品標本</a></li>
+        <li><a onclick="gs('#origin')">起源筆記</a></li>
+      </ul>
+    </div>
+
+    <!-- 聯絡區 -->
+    <div>
+      <span class="footer-label">CONTACT / 聯絡</span>
+      <ul class="footer-list">
+        <li><a href="https://www.instagram.com/tinyfungi.lab/" target="_blank">Instagram Direct</a></li>
+        <li><a style="opacity: 0.5;">Handcrafted in Taiwan</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div>© 2026 TINYFUNGI LAB · ALL RIGHTS RESERVED</div>
+    <div>LOGGED AT 24.50° N, 121.50° E / STATUS: ARCHIVING</div>
+  </div>
+</footer>
+<!-- ── 新頁尾結束 ── -->
+
+<script>
+    const btt = document.createElement('div');
+btt.className = 'back-to-top';
+btt.innerHTML = '↑';
+document.body.appendChild(btt);
+
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 500) btt.classList.add('show');
+  else btt.classList.remove('show');
+});
+
+btt.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+// --- 1. 原有的滾動動畫與功能 ---
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) entry.target.classList.add('on');
+  });
+}, { threshold: 0.08 });
+
+document.querySelectorAll('.rv').forEach(el => obs.observe(el));
+
+function gs(id) {
+  document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' });
+}
+
+function toggleOrigin() {
+  const acc = document.getElementById('origin-accordion');
+  const banner = document.getElementById('origin-banner');
+  const lbl = document.getElementById('ob-lbl');
+  const arrow = document.getElementById('ob-arrow');
+  const isOpen = acc.classList.toggle('open');
+  
+  banner.classList.toggle('open');
+  lbl.textContent = isOpen ? '點擊收起' : '展開完整紀錄';
+  arrow.style.transform = isOpen ? 'rotate(180deg)' : '';
+  
+  if (isOpen) {
+    setTimeout(() => {
+      document.querySelectorAll('.rv').forEach(el => obs.observe(el));
+    }, 100);
+  }
+}
+
+// --- 2. 新的十字游標 JS (增加錯誤防護) ---
+const cursor = document.getElementById('custom-cursor');
+
+if (cursor) {
+  // 監聽滑鼠移動
+  window.addEventListener('mousemove', (e) => {
+    cursor.style.opacity = "1";
+    // 使用 transform 效能最好，游標最滑順
+    cursor.style.transform = `translate3d(${e.clientX - 15}px, ${e.clientY - 15}px, 0)`;
+  });
+
+  // 監聽滑鼠離開視窗（隱藏游標）
+  document.addEventListener('mouseleave', () => {
+    cursor.style.opacity = "0";
+  });
+
+  // 偵測所有可點擊元素
+  const updateCursor = () => {
+    const clickables = document.querySelectorAll('a, button, .origin-banner, .origin-collapse');
+    clickables.forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('active'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('active'));
+    });
+  };
+
+  updateCursor();
+}
+
+window.addEventListener('load', () => {
+  const loader = document.getElementById('preloader');
+  setTimeout(() => {
+    loader.style.opacity = '0';
+    setTimeout(() => loader.remove(), 600);
+  }, 1000); // 1秒後自動消失
+});
+</script>
+</body>
+</html>
