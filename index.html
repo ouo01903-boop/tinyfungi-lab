@@ -312,7 +312,27 @@ footer{
     justify-content: center;
   }
   
-  .connect-sec{padding:4rem 1.5rem;}
+  .origin-collapse {
+    /* 增加下方外邊距，強行把下一區推開 */
+    margin-bottom: 60px !important; 
+    
+    /* 確保框框本身不會縮水 */
+    box-sizing: border-box !important;
+    
+    /* 提高層級防止被蓋掉底線 */
+    position: relative !important;
+    z-index: 100 !important;
+  }
+
+  .connect-sec {
+    /* 確保上方沒有負值或擠壓，改用 padding 來推開距離更穩定 */
+    margin-top: 0 !important; 
+    padding-top: 5rem !important; 
+    
+    /* 確保這區在下面，不准往上爬 */
+    position: relative !important;
+    z-index: 1 !important;
+  }
   .divider{padding:.7rem 1.5rem;}
   footer{padding:1.5rem;}
 }
