@@ -321,13 +321,12 @@ footer{
   .hero-data{flex-wrap:wrap;gap:1rem;}
 }
 
-/* 只有在電腦端 (hover: hover) 才隱藏原生指標 */
+/* ── 4. 全域游標鎖定 (防止變回箭頭) ── */
 @media (hover: hover) {
-  body, html, a, button, .origin-banner {
+  /* 只要是有點擊功能的東西，全部強制 cursor: none */
+  body, html, a, button, .origin-banner, .origin-collapse, .back-to-top, .cbtn, .nav-r a {
     cursor: none !important;
-  }
-}
-
+  
 #custom-cursor {
   width: 30px;
   height: 30px;
