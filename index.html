@@ -296,8 +296,22 @@ footer{
   .spec-card.offset{margin-top:0;}
   .origin-sec{padding:0 1.5rem 4rem;}
   .origin-grid{grid-template-columns:1fr;}
-  .origin-banner{grid-template-columns:1fr;padding:1.8rem;}
-  .ob-right{display:none;}
+  
+  /* 修正處：調整手機版橫幅，讓按鈕與標題並列或適當換行 */
+  .origin-banner{
+    grid-template-columns: 1fr auto; 
+    padding: 1.5rem;
+    gap: 1rem;
+  }
+  
+  /* 修正處：移除原本的 display:none，讓展開按鈕出現 */
+  .ob-right{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
   .connect-sec{padding:4rem 1.5rem;}
   .divider{padding:.7rem 1.5rem;}
   footer{padding:1.5rem;}
@@ -806,7 +820,7 @@ window.addEventListener('scroll', () => {
 });
 
 btt.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-// --- 1. 原有的滾動動畫與功能 ---
+
 const obs = new IntersectionObserver(entries => {
   entries.forEach(entry => {
     if (entry.isIntersecting) entry.target.classList.add('on');
@@ -819,13 +833,15 @@ function gs(id) {
   document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' });
 }
 
+// 修正後的起源開關
 function toggleOrigin() {
   const acc = document.getElementById('origin-accordion');
   const banner = document.getElementById('origin-banner');
   const lbl = document.getElementById('ob-lbl');
   const arrow = document.getElementById('ob-arrow');
+  if (!acc || !banner) return;
+
   const isOpen = acc.classList.toggle('open');
-  
   banner.classList.toggle('open');
   lbl.textContent = isOpen ? '點擊收起' : '展開完整紀錄';
   arrow.style.transform = isOpen ? 'rotate(180deg)' : '';
@@ -837,32 +853,25 @@ function toggleOrigin() {
   }
 }
 
-// --- 2. 新的十字游標 JS (增加錯誤防護) ---
+// 修正後的游標：僅在桌機（有滑鼠）觸發
 const cursor = document.getElementById('custom-cursor');
+const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-if (cursor) {
-  // 監聽滑鼠移動
+if (cursor && !isTouchDevice) {
   window.addEventListener('mousemove', (e) => {
     cursor.style.opacity = "1";
-    // 使用 transform 效能最好，游標最滑順
     cursor.style.transform = `translate3d(${e.clientX - 15}px, ${e.clientY - 15}px, 0)`;
   });
 
-  // 監聽滑鼠離開視窗（隱藏游標）
-  document.addEventListener('mouseleave', () => {
-    cursor.style.opacity = "0";
+  document.addEventListener('mouseleave', () => { cursor.style.opacity = "0"; });
+
+  const clickables = document.querySelectorAll('a, button, .origin-banner, .origin-collapse');
+  clickables.forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('active'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('active'));
   });
-
-  // 偵測所有可點擊元素
-  const updateCursor = () => {
-    const clickables = document.querySelectorAll('a, button, .origin-banner, .origin-collapse');
-    clickables.forEach(el => {
-      el.addEventListener('mouseenter', () => cursor.classList.add('active'));
-      el.addEventListener('mouseleave', () => cursor.classList.remove('active'));
-    });
-  };
-
-  updateCursor();
+} else if (cursor) {
+  cursor.style.display = 'none'; // 手機直接隱藏
 }
 
 window.addEventListener('load', () => {
