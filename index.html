@@ -312,27 +312,7 @@ footer{
     justify-content: center;
   }
   
-  .origin-collapse {
-    /* 增加下方外邊距，強行把下一區推開 */
-    margin-bottom: 60px !important; 
-    
-    /* 確保框框本身不會縮水 */
-    box-sizing: border-box !important;
-    
-    /* 提高層級防止被蓋掉底線 */
-    position: relative !important;
-    z-index: 100 !important;
-  }
-
-  .connect-sec {
-    /* 確保上方沒有負值或擠壓，改用 padding 來推開距離更穩定 */
-    margin-top: 0 !important; 
-    padding-top: 5rem !important; 
-    
-    /* 確保這區在下面，不准往上爬 */
-    position: relative !important;
-    z-index: 1 !important;
-  }
+  .connect-sec{padding:4rem 1.5rem;}
   .divider{padding:.7rem 1.5rem;}
   footer{padding:1.5rem;}
 }
@@ -591,7 +571,7 @@ footer{
 
 <!-- CONNECT -->
 <section class="connect-sec" id="connect">
-  <div class="connect-label rv">— 點集下方連結 —</div>
+  <div class="connect-label rv">— 點擊下方連結 —</div>
   <h3 class="connect-title rv rv1">參與更多實驗紀錄</h3>
   <div class="connect-btns rv rv2">
     <a class="cbtn" href="https://www.instagram.com/tinyfungi.lab/" target="_blank">
@@ -683,7 +663,7 @@ footer{
       text-align: center;
     }
   }
-  <style>
+  
   /* ── 頁尾核心樣式 ── */
   .footer-wrap {
     background: var(--ink);
